@@ -1,0 +1,22 @@
+{
+  "name": "taboola-recommendation-widget",
+  "version": "1.0.0",
+  "description": "Taboola recommendation widget - Frontend Engineering Home Assignment",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "taboola",
+    "recommendation",
+    "widget"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
+
