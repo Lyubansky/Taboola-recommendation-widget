@@ -38,7 +38,7 @@ export class TaboolaWidget {
       }
       const recommendations = await fetchRecommendations(this.config);
       if (DEBUG) {
-        console.log('✅ API Response received:', recommendations);
+        console.log('API Response received:', recommendations);
         console.log('Number of recommendations:', recommendations.length);
       }
       
@@ -47,7 +47,7 @@ export class TaboolaWidget {
       
       this.render();
     } catch (error) {
-      console.error('❌ API Error:', error);
+      console.error('API Error:', error);
       this.showError(error instanceof Error ? error.message : 'Failed to load recommendations');
     }
   }

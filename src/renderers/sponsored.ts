@@ -3,15 +3,19 @@ import { Recommendation } from '../types.js';
 import { BaseRenderer } from './base.js';
 
 /**
- * Renderer for sponsored recommendations
- * - Displays thumbnail, title, description, and branding
- * - Opens links in a new tab
+ * Renderer for sponsored recommendations.
+ * Responsible for building the DOM structure and handling click behavior.
  */
 export class SponsoredRenderer extends BaseRenderer {
+  /**
+   * Renders a sponsored recommendation into a DOM element.
+   */
   render(recommendation: Recommendation): HTMLElement {
+    // Create the shared root container for the recommendation
     const container = this.createContainer(recommendation);
     
     // Image wrapper
+    // Wrapper used to control aspect ratio and fallback styling
     const imageWrapper = document.createElement('div');
     imageWrapper.className = 'taboola-widget-item-image-wrapper';
     
@@ -19,9 +23,10 @@ export class SponsoredRenderer extends BaseRenderer {
     img.src = recommendation.imageUrl;
     img.alt = recommendation.title;
     img.className = 'taboola-widget-item-image';
-    img.loading = 'lazy';
+    // The browser loads the image only when it’s about to appear on screen
+    img.loading = 'lazy'; // Improves performance by deferring offscreen images
     
-    // Handle broken images gracefully
+    // Handle broken images
     img.onerror = () => {
       img.style.display = 'none';
       imageWrapper.style.background = 'linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%)';
@@ -48,16 +53,21 @@ export class SponsoredRenderer extends BaseRenderer {
     branding.className = 'taboola-widget-item-branding';
     branding.textContent = recommendation.branding || '';
     
+    // Assemble content section
     content.appendChild(title);
     content.appendChild(description);
     content.appendChild(branding);
-    
+
+    // Assemble full recommendation card
     container.appendChild(imageWrapper);
     container.appendChild(content);
     
     return container;
   }
-
+   /**
+   * Handles click behavior for sponsored recommendations.
+   * Sponsored links are opened in a new tab.
+   */
   handleClick(recommendation: Recommendation): void {
     window.open(recommendation.url, '_blank');
   }

@@ -1,5 +1,6 @@
 /* Taboola Recommendation Widget Styles */
-
+/* The widget is responsive because layout is handled with mobile-first CSS using Flexbox and media queries
+   allowing the same code to adapt automatically to different screen sizes */
 .taboola-widget {
   display: flex;
   flex-direction: column;

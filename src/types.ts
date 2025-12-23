@@ -1,4 +1,5 @@
 // Type definitions for the Taboola recommendation widget
+// Decoupling the widget from the API response
 
 export interface Recommendation {
   id: string;

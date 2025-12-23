@@ -135,6 +135,21 @@ Run unit tests:
 npm test
 ```
 
+Run tests in watch mode (auto-rerun on file changes):
+```bash
+npm run test:watch
+```
+
+### Test Coverage
+
+The test suite covers:
+- API URL building and response normalization
+- Renderer registry and selection
+- Click behavior (sponsored vs organic)
+- Widget error handling (empty arrays, API errors)
+- Widget rendering (correct number of items)
+- Graceful handling of missing renderers
+
 ## Browser Support
 
 The widget is designed to work on modern browsers with support for:
