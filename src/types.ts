@@ -29,6 +29,7 @@ export interface ApiResponse {
 }
 
 export interface WidgetConfig {
+  source: 'taboola' | 'organic' | 'video'; // extensible
   publisherId: string;
   appType: string;
   apiKey: string;

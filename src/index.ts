@@ -1,5 +1,5 @@
-// Entry point for the Taboola recommendation widget
-import { TaboolaWidget } from './widget.js';
+// Entry point for the recommendation widget
+import { Widget } from './widget.js';
 import { WidgetConfig } from './types.js';
 import { defaultConfig } from './config.js';
 
@@ -9,12 +9,12 @@ import { defaultConfig } from './config.js';
 function init(): void {
   const container = document.getElementById('taboola-widget');
   if (!container) {
-    console.error('Taboola widget container not found');
+    console.error('Widget container not found');
     return;
   }
 
   // Initialize widget
-  new TaboolaWidget(container, defaultConfig);
+  new Widget(container, defaultConfig);
 }
 
 // Initialize when DOM is ready

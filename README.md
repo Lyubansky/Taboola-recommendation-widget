@@ -1,6 +1,6 @@
-# Taboola Recommendation Widget
+# Recommendation Widget
 
-A lightweight, framework-agnostic recommendation widget built in TypeScript. It fetches recommendations from the Taboola API, normalizes the response, and renders different recommendation types using a pluggable renderer architecture.
+A lightweight, framework-agnostic recommendation widget built in TypeScript. It fetches recommendations from configurable API sources, normalizes the response, and renders different recommendation types using a pluggable renderer architecture. The widget is API-agnostic and supports multiple recommendation sources without changing core logic.
 
 ## Screenshot
 
@@ -68,12 +68,17 @@ The widget will load in the browser and automatically update when files change.
 
 ## How the Widget Works
 
-1. **Initialization**: The widget reads configuration from data attributes or uses defaults from `config.ts`
-2. **API Fetching**: Fetches recommendations from the Taboola API using the configured parameters
-3. **Response Normalization**: Transforms the API response into a standardized `Recommendation` format
-4. **Renderer Selection**: Uses the renderer registry to find the appropriate renderer based on the recommendation's `origin` type
-5. **Rendering**: Each renderer creates DOM elements and handles click behavior (e.g., sponsored opens in new tab, organic in same tab)
-6. **Event Handling**: Uses event delegation for efficient click handling on dynamically rendered items
+1. **Initialization**: The widget is instantiated with a configuration object (defaults from `config.ts` or custom config). It sets up the container, attaches event listeners, and begins loading recommendations.
+
+2. **API Routing**: The `config.source` field routes to the appropriate API via `api/index.ts` router. The router selects the correct API module (e.g., `taboola`, `organic`, `video`) based on this value.
+
+3. **API Fetching**: The selected API module fetches recommendations from its endpoint and normalizes the response to a standardized `Recommendation[]` format. Each API module handles its own URL building and response transformation.
+
+4. **Renderer Selection**: For each recommendation, the widget uses the renderer registry to find the appropriate renderer based on the recommendation's `origin` type (e.g., `sponsored`, `organic`). If no renderer is found, the recommendation is safely skipped.
+
+5. **Rendering**: Each renderer creates DOM elements using a `DocumentFragment` for performance. The renderer defines both the visual structure and click behavior (e.g., sponsored opens in new tab, organic in same tab).
+
+6. **Event Handling**: A single click listener on the widget container uses event delegation to handle clicks on dynamically rendered items. The widget finds the clicked recommendation and delegates to the appropriate renderer's `handleClick` method.
 
 ## Testing
 
@@ -92,9 +97,11 @@ npm run test:watch
 The test suite covers:
 - API URL building and response normalization
 - Renderer registry and selection
-- Click behavior (sponsored vs organic)
-- Widget error handling (empty arrays, API errors)
-- Widget rendering (correct number of items)
+- Click behavior (sponsored opens new tab, organic opens same tab)
+- Widget error handling (empty arrays, API errors, non-Error objects)
+- Widget rendering (correct number of items, loading states)
+- Widget initialization (container setup)
+- Renderer DOM structure and branding elements
 - Graceful handling of missing renderers
 
 ### Debug Mode
@@ -160,7 +167,7 @@ this.register('video', new VideoRenderer());
 
 Make sure the API response includes `origin: 'video'` for video recommendations. The widget will automatically use the `VideoRenderer` for items with that origin.
 
-No changes needed to the widget code - the renderer registry handles everything automatically.
+No changes are required in the widget. Renderer selection is handled automatically by the renderer registry based on the recommendation origin.
 
 If a renderer is not registered for a given origin, the widget will skip that item and log a warning when DEBUG is enabled.
 
@@ -182,22 +189,39 @@ The widget supports multiple recommendation sources without changing core logic.
    }
    ```
 
-2. **Define default configuration** in `config.ts`:
+2. **Add the new source to the API router** in `src/api/index.ts`:
+   ```typescript
+   import { fetchOrganicRecommendations } from './organic.js';
+   
+   export async function fetchRecommendations(config: WidgetConfig) {
+     switch (config.source) {
+       case 'taboola':
+         return fetchTaboolaRecommendations(config);
+       case 'organic':
+         return fetchOrganicRecommendations(config); // Add this
+       default:
+         throw new Error(`Unknown source: ${config.source}`);
+     }
+   }
+   ```
+
+3. **Define default configuration** in `config.ts`:
    ```typescript
    export const organicDefaultConfig: WidgetConfig = {
+     source: 'organic', // Required: identifies which API to use
      publisherId: 'organic-publisher',
      apiKey: 'organic-key',
      // ... other defaults
    };
    ```
 
-3. **Use the new API in your widget**:
+4. **Use the new API in your widget**:
    ```typescript
-   import { fetchOrganicRecommendations } from './api/organic.js';
+   import { Widget } from './widget.js';
    import { organicDefaultConfig } from './config.js';
    
    const config = { ...organicDefaultConfig, ...customConfig };
-   new TaboolaWidget(container, config, fetchOrganicRecommendations);
+   new Widget(container, config);
    ```
 
 ### Multiple Widgets on One Page
@@ -205,20 +229,25 @@ The widget supports multiple recommendation sources without changing core logic.
 You can have multiple widgets, each using a different API:
 
 ```typescript
-// Widget 1: Sponsored content
-new TaboolaWidget(container1, sponsoredConfig, fetchRecommendations);
+import { Widget } from './widget.js';
+
+// Widget 1: Taboola content
+const taboolaConfig = { source: 'taboola', ...otherConfig };
+new Widget(container1, taboolaConfig);
 
 // Widget 2: Organic content  
-new TaboolaWidget(container2, organicConfig, fetchOrganicRecommendations);
+const organicConfig = { source: 'organic', ...otherConfig };
+new Widget(container2, organicConfig);
 ```
 
-Each widget operates independently with its own configuration and data source. The widget doesn't know which API is being used—it only needs a function that returns `Promise<Recommendation[]>`.
-
+Each widget operates independently with its own configuration and data source. The widget doesn’t know which API is being used. The `config.source` field routes the request to the correct API via the router in `api/index.ts`
 ### Key Points
 
-- **Widget is API-agnostic**: It doesn't care which API you use, only that it receives `Recommendation[]`
+- **Widget is API-agnostic**: It doesn't know about Taboola, Organic, or any specific API. It only calls `fetchRecommendations(config)` from the API router
+- **Config-driven routing**: The `config.source` field determines which API is used via the router in `api/index.ts`
 - **Renderer registry handles rendering**: New recommendation types just need a renderer registered
 - **Configuration is centralized**: Defaults in `config.ts`, overridden per widget instance
 - **Safe failure**: Unknown recommendation types are skipped without breaking the widget
+- **Widget never changes**: Adding new APIs only requires updating the router, not the widget implementation
 
 

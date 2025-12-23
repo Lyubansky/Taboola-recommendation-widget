@@ -1,13 +1,13 @@
 // Main widget class
 import { Recommendation, WidgetConfig } from './types.js';
-import { fetchRecommendations } from './api/taboola.js';
+import { fetchRecommendations } from './api/index.js';
 import { rendererRegistry } from './renderers/registry.js';
 import { DEBUG } from './config.js';
 
 /**
- * Taboola Recommendation Widget
+ * Recommendation Widget - API-agnostic widget that renders recommendations
  */
-export class TaboolaWidget {
+export class Widget {
   private container: HTMLElement;
   private config: WidgetConfig;
   private recommendations: Recommendation[] = [];

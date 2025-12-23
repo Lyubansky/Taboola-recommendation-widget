@@ -1,14 +1,14 @@
-import { TaboolaWidget } from '../src/widget.js';
-import { fetchRecommendations } from '../src/api/taboola.js';
+import { Widget } from '../src/widget.js';
+import { fetchRecommendations } from '../src/api/index.js';
 import { rendererRegistry } from '../src/renderers/registry.js';
 import { WidgetConfig, Recommendation } from '../src/types.js';
 import { SponsoredRenderer } from '../src/renderers/sponsored.js';
 
 // Mock the API and registry
-jest.mock('../src/api/taboola.js');
+jest.mock('../src/api/index.js');
 jest.mock('../src/renderers/registry.js');
 
-describe('TaboolaWidget', () => {
+describe('Widget', () => {
   let container: HTMLElement;
   let config: WidgetConfig;
   const mockFetchRecommendations = fetchRecommendations as jest.MockedFunction<typeof fetchRecommendations>;
@@ -20,6 +20,7 @@ describe('TaboolaWidget', () => {
     document.body.appendChild(container);
 
     config = {
+      source: 'taboola',
       publisherId: 'test-publisher',
       appType: 'desktop',
       apiKey: 'test-key',
@@ -44,7 +45,7 @@ describe('TaboolaWidget', () => {
         () => new Promise((resolve) => setTimeout(() => resolve([]), 100))
       );
 
-      new TaboolaWidget(container, config);
+      new Widget(container, config);
 
       // Check loading state is shown immediately
       expect(container.innerHTML).toContain('Loading recommendations...');
@@ -56,7 +57,7 @@ describe('TaboolaWidget', () => {
     it('should not crash when API returns empty array', async () => {
       mockFetchRecommendations.mockResolvedValue([]);
       // widget is not used because DOM is observed
-      const widget = new TaboolaWidget(container, config);
+      const widget = new Widget(container, config);
 
       // Wait for async operations
       await new Promise((resolve) => setTimeout(resolve, 10));
@@ -88,7 +89,7 @@ describe('TaboolaWidget', () => {
 
       mockFetchRecommendations.mockResolvedValue(recommendations);
 
-      new TaboolaWidget(container, config);
+      new Widget(container, config);
 
       await new Promise((resolve) => setTimeout(resolve, 10));
 
@@ -102,7 +103,7 @@ describe('TaboolaWidget', () => {
       const errorMessage = 'Network error';
       mockFetchRecommendations.mockRejectedValue(new Error(errorMessage));
 
-      new TaboolaWidget(container, config);
+      new Widget(container, config);
 
       await new Promise((resolve) => setTimeout(resolve, 10));
 
@@ -114,7 +115,7 @@ describe('TaboolaWidget', () => {
     it('should show error state with error message', async () => {
       mockFetchRecommendations.mockRejectedValue(new Error('API request failed: 500 Internal Server Error'));
 
-      new TaboolaWidget(container, config);
+      new Widget(container, config);
 
       await new Promise((resolve) => setTimeout(resolve, 10));
 
@@ -125,7 +126,7 @@ describe('TaboolaWidget', () => {
     it('should handle non-Error objects gracefully', async () => {
       mockFetchRecommendations.mockRejectedValue('String error');
 
-      new TaboolaWidget(container, config);
+      new Widget(container, config);
 
       await new Promise((resolve) => setTimeout(resolve, 10));
 
@@ -164,7 +165,7 @@ describe('TaboolaWidget', () => {
           throw new Error('No renderer found for origin: video');
         });
 
-      new TaboolaWidget(container, config);
+      new Widget(container, config);
 
       await new Promise((resolve) => setTimeout(resolve, 10));
 
@@ -175,7 +176,7 @@ describe('TaboolaWidget', () => {
     it('should call fetchRecommendations with correct config', async () => {
       mockFetchRecommendations.mockResolvedValue([]);
 
-      new TaboolaWidget(container, config);
+      new Widget(container, config);
 
       await new Promise((resolve) => setTimeout(resolve, 10));
 
@@ -188,7 +189,7 @@ describe('TaboolaWidget', () => {
     it('should set container class name', async () => {
       mockFetchRecommendations.mockResolvedValue([]);
 
-      new TaboolaWidget(container, config);
+      new Widget(container, config);
 
       await new Promise((resolve) => setTimeout(resolve, 10));
 

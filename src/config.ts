@@ -14,6 +14,7 @@ export const DEBUG = false;
  * These values can be overridden via data attributes on the widget container element
  */
 export const defaultConfig: WidgetConfig = {
+  source: 'taboola',
   publisherId: 'taboola-templates',
   appType: 'desktop',
   apiKey: 'f9040ab1b9c802857aa783c469d0e0ff7e7366e4',

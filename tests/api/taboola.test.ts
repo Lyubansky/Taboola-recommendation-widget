@@ -1,8 +1,9 @@
-import { buildApiUrl, normalizeApiResponse } from '../../src/api/taboola.js';
+import { buildTaboolaUrl, normalizeTaboolaResponse } from '../../src/api/taboola.js';
 import { WidgetConfig, ApiResponse } from '../../src/types.js';
 
-describe('buildApiUrl', () => {
+describe('buildTaboolaUrl', () => {
   const baseConfig: WidgetConfig = {
+    source: 'taboola',
     publisherId: 'test-publisher',
     appType: 'desktop',
     apiKey: 'test-api-key',
@@ -10,7 +11,7 @@ describe('buildApiUrl', () => {
   };
 
   it('should build URL with required parameters', () => {
-    const url = buildApiUrl(baseConfig);
+    const url = buildTaboolaUrl(baseConfig);
     
     expect(url).toContain('test-publisher');
     expect(url).toContain('app.type=desktop');
@@ -21,21 +22,21 @@ describe('buildApiUrl', () => {
 
   it('should include optional sourceType parameter', () => {
     const config = { ...baseConfig, sourceType: 'video' };
-    const url = buildApiUrl(config);
+    const url = buildTaboolaUrl(config);
     
     expect(url).toContain('source.type=video');
   });
 
   it('should include optional sourceUrl parameter', () => {
     const config = { ...baseConfig, sourceUrl: 'http://example.com' };
-    const url = buildApiUrl(config);
+    const url = buildTaboolaUrl(config);
     
     expect(url).toContain('source.url=http://example.com');
   });
 
   it('should use custom count parameter', () => {
     const config = { ...baseConfig, count: 8 };
-    const url = buildApiUrl(config);
+    const url = buildTaboolaUrl(config);
     
     expect(url).toContain('count=8');
   });
@@ -47,7 +48,7 @@ describe('buildApiUrl', () => {
       sourceUrl: 'http://example.com',
       count: 4,
     };
-    const url = buildApiUrl(config);
+    const url = buildTaboolaUrl(config);
     
     expect(url).toBe(
       'http://api.taboola.com/1.0/json/test-publisher/recommendations.get?app.type=desktop&app.apikey=test-api-key&count=4&source.type=video&source.id=test-source-id&source.url=http://example.com'
@@ -56,7 +57,7 @@ describe('buildApiUrl', () => {
 });
 // Given a raw Taboola API response, does normalizeApiResponse return the data in widget’s internal format?
 // Without normalization Renderers depend on Taboola field names and breaks if api changes
-describe('normalizeApiResponse', () => {
+describe('normalizeTaboolaResponse', () => {
   it('should normalize valid API response', () => {
     const apiResponse: ApiResponse = {
       id: 'response-id',
@@ -73,7 +74,7 @@ describe('normalizeApiResponse', () => {
       ],
     };
 
-    const result = normalizeApiResponse(apiResponse);
+    const result = normalizeTaboolaResponse(apiResponse);
 
     expect(result).toHaveLength(1);
     expect(result[0]).toEqual({
@@ -102,7 +103,7 @@ describe('normalizeApiResponse', () => {
       ],
     };
 
-    const result = normalizeApiResponse(apiResponse);
+    const result = normalizeTaboolaResponse(apiResponse);
 
     expect(result[0].title).toBe('Article Title');
   });
@@ -125,7 +126,7 @@ describe('normalizeApiResponse', () => {
       ],
     };
 
-    const result = normalizeApiResponse(apiResponse);
+    const result = normalizeTaboolaResponse(apiResponse);
 
     expect(result[0].imageUrl).toBe('first.jpg');
   });
@@ -145,7 +146,7 @@ describe('normalizeApiResponse', () => {
       ],
     };
 
-    const result = normalizeApiResponse(apiResponse);
+    const result = normalizeTaboolaResponse(apiResponse);
 
     expect(result[0].imageUrl).toBe('');
   });
@@ -175,7 +176,7 @@ describe('normalizeApiResponse', () => {
       ],
     };
 
-    const result = normalizeApiResponse(apiResponse);
+    const result = normalizeTaboolaResponse(apiResponse);
 
     expect(result[0].branding).toBe('Brand Name');
     expect(result[1].branding).toBeUndefined();
@@ -198,7 +199,7 @@ describe('normalizeApiResponse', () => {
       ],
     };
 
-    const result = normalizeApiResponse(apiResponse);
+    const result = normalizeTaboolaResponse(apiResponse);
 
     expect(result[0].id).toBe('');
     expect(result[0].title).toBe('');
@@ -213,7 +214,7 @@ describe('normalizeApiResponse', () => {
       list: null,
     } as unknown as ApiResponse;
 
-    const result = normalizeApiResponse(apiResponse);
+    const result = normalizeTaboolaResponse(apiResponse);
 
     expect(result).toEqual([]);
   });
@@ -224,7 +225,7 @@ describe('normalizeApiResponse', () => {
       list: 'not-an-array',
     } as unknown as ApiResponse;
 
-    const result = normalizeApiResponse(apiResponse);
+    const result = normalizeTaboolaResponse(apiResponse);
 
     expect(result).toEqual([]);
   });
@@ -244,7 +245,7 @@ describe('normalizeApiResponse', () => {
       ],
     };
 
-    const result = normalizeApiResponse(apiResponse);
+    const result = normalizeTaboolaResponse(apiResponse);
 
     expect(result[0].origin).toBe('video');
   });

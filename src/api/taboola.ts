@@ -6,7 +6,7 @@ import { DEBUG } from '../config.js';
  * Builds the Taboola API URL with query parameters
  * Exported for testing purposes
  */
-export function buildApiUrl(config: WidgetConfig): string {
+export function buildTaboolaUrl(config: WidgetConfig): string {
   const count = config.count || 4;
   const sourceTypeParam = config.sourceType ? `&source.type=${config.sourceType}` : '';
   const sourceUrlParam = config.sourceUrl ? `&source.url=${config.sourceUrl}` : '';
@@ -19,13 +19,11 @@ export function buildApiUrl(config: WidgetConfig): string {
  * @param config - Widget configuration parameters
  * @returns Promise resolving to an array of normalized recommendations
  */
-export async function fetchRecommendations(
-  config: WidgetConfig
-): Promise<Recommendation[]> {
-  const url = buildApiUrl(config);
+export async function fetchTaboolaRecommendations(config: WidgetConfig): Promise<Recommendation[]> {
+  const url = buildTaboolaUrl(config);
 
   if (DEBUG) {
-    console.log('🔗 API URL:', url);
+    console.log('API URL:', url);
   }
 
   const response = await fetch(url);
@@ -39,18 +37,18 @@ export async function fetchRecommendations(
   const data: ApiResponse = await response.json();
 
   if (DEBUG) {
-    console.log('📦 Raw API Response:', data);
+    console.log('Raw API Response:', data);
   }
 
-  return normalizeApiResponse(data);
+  return normalizeTaboolaResponse(data);
 }
 
 /**
- * Normalizes the raw API response into our internal Recommendation format
+ * Normalizes the raw Taboola API response into our internal Recommendation format
  * @param response - Raw API response
  * @returns Array of normalized recommendations
  */
-export function normalizeApiResponse(response: ApiResponse): Recommendation[] {
+export function normalizeTaboolaResponse(response: ApiResponse): Recommendation[] {
   if (!Array.isArray(response.list)) {
     return [];
   }
