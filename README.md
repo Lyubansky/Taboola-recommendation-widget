@@ -39,9 +39,9 @@ npm run build
 
 This project is a client-side TypeScript widget that runs in the browser and does not require a backend server.
 
-1. **Install dependencies**
-```bash
-npm install
+1. **Api key**
+```
+Open `src/config.ts` and replace the `apiKey` value with your Taboola API key
 ```
 
 2. **Start TypeScript in watch mode**
